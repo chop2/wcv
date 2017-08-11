@@ -1,13 +1,5 @@
 #pragma once
-
-#ifdef HAVE_OPENCV
-#	include <opencv2/core/core.hpp>
-#endif
-
-#if defined _MSC_VER
-#	include<emmintrin.h> 
-#	define USE_SSE
-#endif
+#include "../pch.h"
 
 typedef unsigned char uchar;
 

@@ -43,7 +43,19 @@
     <ClInclude Include="..\src\core\core_base.hpp">
       <Filter>core</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\core\matOp.hpp">
+    <ClInclude Include="..\src\pch.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\core\matop.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\core\matop.inl.hpp">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\core\matrix.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\core\matrix.inl.hpp">
       <Filter>core</Filter>
     </ClInclude>
   </ItemGroup>

@@ -54,8 +54,8 @@ namespace wcv {
 	formula:
 	$x_{0} = x_{1}cos\theta + y1sin\theta + f1
 	y_{0} = -x_{1}sin\theta + y1cos\theta + f2
-	f1 = - \frac{newWidth - 1}{2}cos\theta - \frac{newHeight - 1}{2}sin\theta + \frac{width - 1}{2}
-	f2 = \frac{newWidth - 1}{2}sin\theta - \frac{newHeight - 1}{2}cos\theta + \frac{height- 1}{2}
+	f1 = - \frac{newWidth - 1}{2}cos\theta - \frac{newHeight - 1}{2}sin\theta + \frac{cols - 1}{2}
+	f2 = \frac{newWidth - 1}{2}sin\theta - \frac{newHeight - 1}{2}cos\theta + \frac{rows- 1}{2}
 	$
 	@param src - input image
 	@param dst - output image

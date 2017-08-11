@@ -151,8 +151,12 @@
   <ItemGroup>
     <ClInclude Include="..\src\core\core.h" />
     <ClInclude Include="..\src\core\core_base.hpp" />
-    <ClInclude Include="..\src\core\matOp.hpp" />
+    <ClInclude Include="..\src\core\matop.h" />
+    <ClInclude Include="..\src\core\matop.inl.hpp" />
+    <ClInclude Include="..\src\core\matrix.h" />
+    <ClInclude Include="..\src\core\matrix.inl.hpp" />
     <ClInclude Include="..\src\imgproc\imgproc.h" />
+    <ClInclude Include="..\src\pch.h" />
     <ClInclude Include="..\src\utils\utility.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

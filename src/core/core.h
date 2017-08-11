@@ -1,14 +1,22 @@
 #pragma once
-#include "core_base.hpp"
+#include "matrix.h"
+#include "matop.h"
+//#include "core_base.hpp"
+#include "matrix.inl.hpp"
+#include "matop.inl.hpp"
 
 namespace wcv {
 	typedef _Scalar<int> Scalar4i;
 	typedef _Scalar<float> Scalar4f;
 	typedef _Scalar<double> Scalar4d;
-	
+
 	typedef _Size<int> Size4i;
 	typedef _Size<float> Size4f;
 	typedef _Size<double> Size4d;
+
+	typedef Range_<int> Range4i;
+	typedef Range_<float> Range4f;
+	typedef Range_<double> Range4d;
 
 	typedef Matrix_<uchar> Image8u;
 	typedef Image8u Image;
@@ -22,7 +30,7 @@ namespace wcv {
 #	define Reg_cvt_image_fmt(tp1,tp2)								\
 	Image##tp2## cvt##tp1##_##tp2##(const Image##tp1##& src) {		\
 		Image##tp2## dst;											\
-		dst.create(src.height, src.width, src.nchannels);			\
+		dst.create(src.rows, src.cols, src.channels);			\
 		for (size_t i = 0; i < src.totalSizes; i++)	{				\
 			if(tp2 == "8u")											\
 				dst.data[i] = (uchar)src.data[i];					\

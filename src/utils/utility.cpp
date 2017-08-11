@@ -10,32 +10,32 @@ namespace wcv {
 //
 //	template<typename _Tp>
 //	bool Matrix_<_Tp>::empty() const {
-//		return (height*width*nchannels == 0) || (data == nullptr);
+//		return (rows*cols*channels == 0) || (data == nullptr);
 //	}
 //	
 //	template<typename _Tp>
 //	void Matrix_<_Tp>::create(int h, int w, int c,int val) {
-//		height = h;
-//		width = w;
-//		nchannels = c;
+//		rows = h;
+//		cols = w;
+//		channels = c;
 //		this->data = (uchar*)fastAlloc(w*h*c * sizeof(uchar));
 //		memset(this->data, val, w*h*c * sizeof(uchar));
 //	}
 //	template<typename _Tp>
 //	size_t Matrix_<_Tp>::totalSizes() const {
-//		return size_t(height * width * nchannels);
+//		return size_t(rows * cols * channels);
 //	}
 //	
 //	template<typename _Tp>
 //	int Matrix_<_Tp>::step() const {
-//		return width * nchannels;
+//		return cols * channels;
 //	}
 //
 //	template<typename _Tp>
 //	bool Matrix_<_Tp>::checkValid() const {
 //		bool bCheck = true;
-//		if ((height < 0 || width < 0) ||
-//			(height == 0 && width == 0) ||
+//		if ((rows < 0 || cols < 0) ||
+//			(rows == 0 && cols == 0) ||
 //			data == nullptr)
 //			bCheck = false;
 //		return bCheck;
@@ -48,9 +48,9 @@ namespace wcv {
 //		int h = src.rows;
 //		int w = src.cols;
 //		int c = src.channels();
-//		this->height = h;
-//		this->width = w;
-//		this->nchannels = c;
+//		this->rows = h;
+//		this->cols = w;
+//		this->channels = c;
 //		if (bCopy) {
 //			if (this->data)
 //				delete[] this->data;
@@ -64,10 +64,10 @@ namespace wcv {
 //	template<typename _Tp>
 //	cv::Mat Matrix_<_Tp>::to_cvmat() {
 //		cv::Mat dst; 
-//		if (nchannels == 1) {
-//			dst = cv::Mat(height, width, CV_8UC1);
-//		} else if (nchannels == 3) {
-//			dst = cv::Mat(height, width, CV_8UC3);
+//		if (channels == 1) {
+//			dst = cv::Mat(rows, cols, CV_8UC1);
+//		} else if (channels == 3) {
+//			dst = cv::Mat(rows, cols, CV_8UC3);
 //		} else {
 //			fprintf(stderr, "unsupport format image.");
 //			return cv::Mat();
@@ -79,12 +79,12 @@ namespace wcv {
 //	template<typename _Tp>
 //	void Matrix_<_Tp>::from_cvmat(const cv::Mat & src)	{
 //		CV_Assert(!src.empty());
-//		this->height = src.rows;
-//		this->width = src.cols;
-//		this->nchannels = src.channels();
+//		this->rows = src.rows;
+//		this->cols = src.cols;
+//		this->channels = src.channels();
 //		if (data)
 //			delete[] data;
-//		size_t size = height*width*nchannels;
+//		size_t size = rows*cols*channels;
 //		data = (uchar*)fastAlloc(size * sizeof(uchar));
 //		memcpy(data, src.ptr<uchar>(), size * sizeof(uchar));
 //	}
@@ -105,6 +105,8 @@ namespace wcv {
 		if (_mm) {
 			uchar* udata = ((uchar**)_mm)[-1];
 			free(udata);
+			udata = nullptr;
+			//_mm = nullptr;
 		}
 	}
 
