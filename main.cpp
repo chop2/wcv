@@ -14,9 +14,9 @@ using namespace cv;
 
 void test_matrix() {
 	float dat[] = {
-		1.,0.,1.,
-		2.,0.,2.,
-		1.,0.,1. };
+		-1.5,0.5,1.5,
+		-2.,0.,2.6,
+		-1.,0.3,1.7 };
 	float dat1[] = {
 		1,2,3,4,5,6,7,8,9,
 		2,3,4,5,6,7,8,9,10,
@@ -132,8 +132,14 @@ void test_matrix() {
 	kk = Mat32f::shuffle(ks);
 	cout << "test \"shuffle()\": " << endl << kk.toString(false) << endl;
 
+	// test<t()>
 	kk = k.t();
-	cout << "test \"shuffle()\": " << endl << kk.toString(false) << endl;
+	cout << "test \"t()\": " << endl << kk.toString(false) << endl;
+
+	// test<converTo>
+	Mat32s k32s;
+	k.convertTo(k32s);
+	cout << "test \"convertTo()\": " << endl << k32s.toString(false) << endl;
 }
 
 void test_imgproc() {
@@ -166,7 +172,7 @@ void test_imgproc() {
 
 void main()
 {
-	//test_matrix();
+	test_matrix();
 	test_imgproc();
 }
 

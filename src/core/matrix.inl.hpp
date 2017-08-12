@@ -581,6 +581,29 @@ namespace wcv {
 	}
 
 	template<typename _Tp>
+	template<typename _Tp2>
+	inline void Matrix_<_Tp>::convertTo(Matrix_<_Tp2>& dst) {
+		if (!dst.empty()) dst.release();
+		int i = 0;
+		dst.create(rows, cols, channels, 0);
+		if (this->totalSizes() > 8) {
+			for (; i < this->totalSizes() - 8; i += 8) {
+				*(dst.data + i + 0) = (_Tp2)*(this->data + i + 0);
+				*(dst.data + i + 1) = (_Tp2)*(this->data + i + 1);
+				*(dst.data + i + 2) = (_Tp2)*(this->data + i + 2);
+				*(dst.data + i + 3) = (_Tp2)*(this->data + i + 3);
+				*(dst.data + i + 4) = (_Tp2)*(this->data + i + 4);
+				*(dst.data + i + 5) = (_Tp2)*(this->data + i + 5); 
+				*(dst.data + i + 6) = (_Tp2)*(this->data + i + 6);
+				*(dst.data + i + 7) = (_Tp2)*(this->data + i + 7);
+			}
+		}
+		for (; i < this->totalSizes(); i++)	{
+			dst.at(i) = (_Tp2)this->at(i);
+		}
+	}
+
+	template<typename _Tp>
 	inline Matrix_<_Tp> Matrix_<_Tp>::t() {
 		assert(channels == 1);
 		Matrix_<_Tp> t;

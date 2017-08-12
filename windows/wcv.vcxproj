@@ -144,7 +144,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\main.cpp" />
-    <ClCompile Include="..\src\core\core.cpp" />
     <ClCompile Include="..\src\imgproc\imgproc.cpp" />
     <ClCompile Include="..\src\utils\utility.cpp" />
   </ItemGroup>

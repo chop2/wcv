@@ -307,6 +307,10 @@ namespace wcv {
 		/**@brief copy self to other matrix */
 		void copyTo(Matrix_& m, Rect4i roi);
 
+		template<typename _Tp2>
+		/**@brief convert to other type*/
+		void convertTo(Matrix_<_Tp2>& dst);
+
 		/**@brief matrix concatenate.
 		function will concat self and m on axes
 		@param m -input matrix

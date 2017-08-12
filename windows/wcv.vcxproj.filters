@@ -26,9 +26,6 @@
     <ClCompile Include="..\src\utils\utility.cpp">
       <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\core\core.cpp">
-      <Filter>core</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\core\core.h">
