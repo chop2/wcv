@@ -179,20 +179,28 @@ namespace wcv {
 		Matrix_(const Matrix_& rhs);
 		~Matrix_();
 
+		/**@brief create a matrix*/
 		void create(int h, int w, int c, int val = 205);
 
+		/**@brief release matrix*/
 		void release();
 
+		/**@brief total size of matrix , h*w*c */
 		size_t totalSizes() const;
 
+		/**@brief total byte of matrix , h*w*c*sizeof(_Tp) */
 		size_t totalBytes() const;
 
+		/**@brief step of matrix , w*c */
 		int step() const;
 
+		/**@brief check matrix */
 		bool checkValid() const;
 
+		/**@brief check matrix empty or not */
 		bool empty() const;
 
+		/**@brief size of matrix , (w,h) */
 		Size4i size() const;
 		
 		/**@brief access 1D element at data + offset(i0)*/
@@ -205,23 +213,32 @@ namespace wcv {
 		/**@brief return i'th row address*/
 		_Tp* ptr(int i0) const;
 
+		/**@brief convert matrix to string */
 		std::string toString(bool singleLine = true) const;
 
+		/**@brief return a sub matrix */
 		Matrix_ subMat(const Range4i& rowRange, const Range4i& colRange);
 
+		/**@brief return a sub matrix */
 		Matrix_ subMat(const Rect4i& roi);
 
+		/**@brief matrix operator*/
 		_Scalar<_Tp> dot(const Matrix_& m);
 
+		/**@brief matrix operator*/
 		Matrix_ hadamardProduct(const Matrix_& m);
 
 #ifdef HAVE_OPENCV
+		/**@brief interface of opencv Mat*/
 		Matrix_(const cv::Mat& src, bool bCopy = true);
 
+		/**@brief convert Matrix to opencv Mat*/
 		cv::Mat to_cvmat();
 
+		/**@brief convert cv::Mat to Matrix*/
 		void from_cvmat(const cv::Mat& src);
 #endif
+		/**@brief stream output a matrix*/
 		friend std::ostream& operator <<(std::ostream& os, const Matrix_& rhs) {
 			os.setf(ios::fixed);
 			os.precision(8);
@@ -242,29 +259,82 @@ namespace wcv {
 			}
 			return os;
 		};
+		/**@brief matrix operator*/
 		Matrix_& operator =(const Matrix_& rhs);
+
+		/**@brief matrix operator*/
 		bool operator ==(const Matrix_& rhs);
+
+		/**@brief matrix operator*/
 		bool operator !=(const Matrix_& rhs);
+
+		/**@brief matrix operator*/
 		Matrix_ operator +(const Matrix_& rhs);
+
+		/**@brief matrix operator*/
 		Matrix_ operator +(const Scalar4d& scalar);
+
+		/**@brief matrix operator*/
 		Matrix_ operator -(const Matrix_& rhs);
+
+		/**@brief matrix operator*/
 		Matrix_ operator -(const Scalar4d& scalar);
+
+		/**@brief matrix operator*/
 		Matrix_ operator /(const Scalar4d& scalar);
+
+		/**@brief matrix operator*/
 		Matrix_ operator *(const Scalar4d& scalar);
+
+		/**@brief matrix operator*/
 		Matrix_ operator *(const Matrix_& rhs);
 
+		/**@brief matrix transpose*/
 		Matrix_ t();
+
+		/**@brief return a row of matrix */
 		Matrix_ row(int row);
+
+		/**@brief return a col of matrix */
 		Matrix_ col(int col);
+
+		/**@brief return a row range of matrix */
 		Matrix_ rowRange(const Range4i& rowRange);
+
+		/**@brief return a col range of matrix */
 		Matrix_ colRange(const Range4i& colRange);
+
+		/**@brief copy self to other matrix */
 		void copyTo(Matrix_& m, Rect4i roi);
+
+		/**@brief matrix concatenate.
+		function will concat self and m on axes
+		@param m -input matrix
+		@param axes - concat axes. axes only support 2D,
+			that's to say,axes == 0 => concat in row
+			axes == 1 => concat in col
+		*/
 		Matrix_ concatenate(const Matrix_& m , int axes = 0);
+
+		/**@brief return a matrix which filled by 0*/
 		static Matrix_ zeros(int rows, int cols, int channels = 1);
+
+		/**@brief return a matrix which filled by 1*/
 		static Matrix_ ones(int rows, int cols, int channels = 1);
+
+		/**@brief return a eye matrix*/
 		static Matrix_ eyes(int rows, int cols);
+		/**@brief shuffle matrix data with row
+			    | 1 1 1 |      | 2 2 2 |    | 3 3 3 |
+		shuffle(| 2 2 2 |)  => | 1 1 1 | or | 2 2 2 |
+			    | 3 3 3 |      | 3 3 3 |    | 1 1 1 |
+		*/
 		static Matrix_ shuffle(const Matrix_& m);
+
+		/**@brief return a random matrix*/
 		static Matrix_ rand(int rows, int cols, int channels);
+
+		/**@brief return a random matrix*/
 		static Matrix_ randn(int rows, int cols, int channels, float esp = 1.f);
 	public:
 		_Tp* data;
