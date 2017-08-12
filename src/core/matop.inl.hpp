@@ -286,7 +286,7 @@ namespace wcv {
 		if (mvs.empty()) return;
 		int r = mvs[0].rows;
 		int c = mvs[0].cols;
-		int cn = mvs.size();
+		int cn = (int)mvs.size();
 		if (!dst.empty()) dst.release();
 		dst.create(r, c, cn, 0);
 #		ifdef USE_OMP

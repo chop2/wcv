@@ -150,7 +150,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\core\core.h" />
-    <ClInclude Include="..\src\core\core_base.hpp" />
     <ClInclude Include="..\src\core\matop.h" />
     <ClInclude Include="..\src\core\matop.inl.hpp" />
     <ClInclude Include="..\src\core\matrix.h" />

@@ -12,11 +12,132 @@ using namespace std;
 using namespace wcv;
 using namespace cv;
 
-void main()
-{
-	Mat src = imread("2.jpg",1);
-	//src.convertTo(src, CV_16S);
+void test_matrix() {
+	float dat[] = {
+		1.,0.,1.,
+		2.,0.,2.,
+		1.,0.,1. };
+	float dat1[] = {
+		1,2,3,4,5,6,7,8,9,
+		2,3,4,5,6,7,8,9,10,
+		3,4,5,6,7,8,9,10,11,
+		4,5,6,7,8,9,10,11,12,
+		5,6,7,8,9,10,11,12,13,
+		6,7,8,9,10,11,12,13,14,
+		7,8,9,10,11,12,13,14,15,
+		8,9,10,11,12,13,14,15,16,
+		9,10,11,12,13,14,15,16,17
+	};
+	//Mat32f k = Mat32f(3, 3, 3, (uchar*)(&dat1)), kk;
 
+	// test<at>
+	Mat32f k = Mat32f(3, 3, 1, &dat);
+	float val = k.at(0);
+	cout << "test \"at\": "<<val << endl;
+	val = k.at(1, 2);
+	cout << "test \"at\": " << val << endl;
+
+	// test<col>
+	Mat32f kk = k.col(2);
+	cout << "test \"col\": " << endl << kk.toString(false) << endl;
+
+	// test<row>
+	kk = k.row(2);
+	cout << "test \"row\": " << endl << kk.toString(false) << endl;
+
+	// test<colRange>
+	kk = k.colRange(Range4i(1, 3));
+	cout << "test \"colRange\": " << endl << kk.toString(false) << endl;
+
+	// test<rowRange>
+	kk = k.rowRange(Range4i(0, 2));
+	cout << "test \"rowRange\": " << endl << kk.toString(false) << endl;
+
+	// test<concatenate>
+	kk = k.concatenate(k, 1);
+	cout << "test \"rowRange\": " << endl << kk.toString(false) << endl;
+
+	// test<copyTo>
+	kk.create(9, 9, 1, 0);
+	k.copyTo(kk, Rect4i(3, 3, 3, 3));
+	cout << "test \"copyTo\": " << endl << kk.toString(false) << endl;
+
+	// test<eyes>
+	kk = Matrix_<float>::eyes(3, 3);
+	cout << "test \"eyes\": " << endl << kk.toString(false) << endl;
+
+	// test<dot>
+	Scalar4f s = k.dot(k);
+	cout << "test \"eyes\": " << endl << s << endl;
+
+	// test<hadamardProduct>
+	kk = k.hadamardProduct(k);
+	cout << "test \"hadamardProduct\": " << endl << kk.toString(false) << endl;
+
+	// test<*>
+	Scalar4d ss = Scalar4d::all(2);
+	kk = k * ss;
+	cout << "test \"*\": " << endl << kk.toString(false) << endl;
+
+	// test<*>
+	kk = k * k;
+	cout << "test \"*\": " << endl << kk.toString(false) << endl;
+
+	// test</>
+	kk = k / 2;
+	cout << "test \"/\": " << endl << kk.toString(false) << endl;
+
+	// test<+>
+	kk = k + 2;
+	cout << "test \"+\": " << endl << kk.toString(false) << endl;
+
+	// test<+>
+	kk = k + k;
+	cout << "test \"+\": " << endl << kk.toString(false) << endl;
+
+	// test<->
+	kk = k - 2;
+	cout << "test \"-\": " << endl << kk.toString(false) << endl;
+
+	// test<->
+	kk = k - k;
+	cout << "test \"-\": " << endl << kk.toString(false) << endl;
+
+	// test<==>
+	bool b = k == kk;
+	cout << "test \"==\": " << endl << b << endl;
+	
+	// test<!=>
+	b = k != k;
+	cout << "test \"!=\": " << endl << b << endl;
+
+	// test<ones()>
+	kk = Mat32f::ones(3, 3, 1);
+	cout << "test \"ones()\": " << endl << kk.toString(false) << endl;
+
+	// test<zeros()>
+	kk = Mat32f::zeros(3, 3, 1);
+	cout << "test \"zeros()\": " << endl << kk.toString(false) << endl;
+
+	// test<rand()>
+	kk = Mat32f::rand(3, 3, 1);
+	cout << "test \"rand()\": " << endl << kk.toString(false) << endl;
+
+	// test<randn()>
+	kk = Mat32f::randn(3, 3, 1);
+	cout << "test \"randn()\": " << endl << kk.toString(false) << endl;
+
+	// test<shuffle()>
+	Mat32f ks = Mat32f(9, 9, 1, &dat1);
+	kk = Mat32f::shuffle(ks);
+	cout << "test \"shuffle()\": " << endl << kk.toString(false) << endl;
+
+	kk = k.t();
+	cout << "test \"shuffle()\": " << endl << kk.toString(false) << endl;
+}
+
+void test_imgproc() {
+	Mat src = imread("2.jpg", 1);
 	Image img;
 	img.from_cvmat(src);
 
@@ -31,41 +152,21 @@ void main()
 	//wcv::rotate(img, ds, 30);
 	//wcv::copymakeBoarder(img, Size4i(7, 7), wcv::MIRROR, ds);
 
-	float dat[] = {
-		-1.,0.,1.,
-		-2.,0.,2.,
-		-1.,0.,1. };
-	float dat1[] = {
-		1,2,3,4,5,6,7,8,9,
-		2,3,4,5,6,7,8,9,10,
-		3,4,5,6,7,8,9,10,11,
-		4,5,6,7,8,9,10,11,12,
-		5,6,7,8,9,10,11,12,13,
-		6,7,8,9,10,11,12,13,14,
-		7,8,9,10,11,12,13,14,15,
-		8,9,10,11,12,13,14,15,16,
-		9,10,11,12,13,14,15,16,17
-	};
-	Mat32f k = Mat32f(3, 3, 3, (uchar*)(&dat1)),kk;
-	//wcv::templateOp(img, k, ds, SAME);
-	//Scalar4f kzz = k.dot(k);
-	Mat32f lk = k.hadamardProduct(k);
-	cout << lk.toString(false) << endl;
 
-	vector<Mat8u> mvs;
-	wcv::split(img, mvs);
-	Mat8u imgg;
-	wcv::merge(mvs, imgg);
-	cv::Mat m0 = imgg.to_cvmat();
+	//vector<Mat8u> mvs;
+	//wcv::split(img, mvs);
 
+	//Mat8u img;
+	//wcv::merge(mvs, imgm);
 
-	//cv::Mat dst;
-	//thresh(src, dst,20);
-	Mat8u dss = img.subMat(Range4i(0, 100), Range4i(0, 100));
-	Mat8u dsss;
-	dsss= ds;
-
-	Mat dst = dss.to_cvmat();
+	ds = img.subMat(Range4i(0, 100), Range4i(0, 100));
+	Mat dst = ds.to_cvmat();
 	imwrite("te.jpg", dst);
+}
+
+void main()
+{
+	//test_matrix();
+	test_imgproc();
 }
 

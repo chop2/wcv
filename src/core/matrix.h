@@ -44,19 +44,45 @@ namespace wcv {
 			memset(_data, 0, 4 * sizeof(_Tp));
 		}
 
-		static _Scalar<_Tp> all(_Tp val) {
-			_Scalar<_Tp> s;
-			memset(s._data, val, 4 * sizeof(_Tp));
-			return s;
+		_Scalar<_Tp>(const _Scalar<_Tp>& rhs) {
+			memcpy(_data, rhs._data, 4 * sizeof(_Tp));
 		}
 
+		static _Scalar<_Tp> all(_Tp val) {
+			_Scalar<_Tp> s;
+			//memset(s._data, val, 4 * sizeof(_Tp));
+			s._data[0] = val;
+			s._data[1] = val;
+			s._data[2] = val;
+			s._data[3] = val;
+			return s;
+		}
+		friend std::ostream& operator <<(std::ostream& os, const _Scalar& rhs) {
+			os.setf(ios::fixed);
+			os.precision(8);
+			os << "[";
+			os << rhs._data[0] << ",";
+			os << rhs._data[1] << ",";
+			os << rhs._data[2] << ",";
+			os << rhs._data[3];
+			os << "]";
+			return os;
+		};
 		~_Scalar<_Tp>() {};
 
 		_Tp& operator[](int idx) {
 			return _data[idx];
 		}
 
-	private:
+		_Scalar& operator =(const _Scalar& rhs) {
+			if (this == &rhs) {
+				return *this;
+			}
+			memcpy(_data, rhs._data, 4 * sizeof(_Tp));
+			return *this;
+		};
+
+	public:
 		_Tp _data[4];
 	};
 
@@ -71,7 +97,14 @@ namespace wcv {
 		_Size() :height(0), width(0) {};
 		_Size(int w, int h) :width(w), height(h) {};
 		~_Size() {};
-
+		friend std::ostream& operator <<(std::ostream& os, const _Size& rhs) {
+			os.setf(ios::fixed);
+			os.precision(8);
+			os << "(";
+			os << rhs.width << "," << rhs.height;
+			os << ")";
+			return os;
+		};
 		_Tp area() const { return height*width; }
 		_Tp height;
 		_Tp width;
@@ -93,6 +126,15 @@ namespace wcv {
 		Range_(int start, int end) :
 			start(start), end(end) {}
 		~Range_() {};
+
+		friend std::ostream& operator <<(std::ostream& os, const Range_& rhs) {
+			os.setf(ios::fixed);
+			os.precision(8);
+			os << "[";
+			os << rhs.start << "," << rhs.end;
+			os << ")";
+			return os;
+		};
 	public:
 		_Tp start;
 		_Tp end;
@@ -101,6 +143,31 @@ namespace wcv {
 	typedef Range_<int> Range4i;
 	typedef Range_<float> Range4f;
 	typedef Range_<double> Range4d;
+
+	template<typename _Tp>
+	class Rect_ {
+	public:
+		Rect_() {};
+		Rect_(_Tp x, _Tp y, _Tp w, _Tp h) :
+			x(x), y(y), width(w), height(h) {};
+		friend std::ostream& operator <<(std::ostream& os, const Rect_& rhs) {
+			os.setf(ios::fixed);
+			os.precision(8);
+			os << "(";
+			os << rhs.x << "," << rhs.y << "," << rhs.width << "," << rhs.height << end;
+			os << ")";
+			return os;
+		};
+	public:
+		_Tp x;
+		_Tp y;
+		_Tp width;
+		_Tp height;
+	};
+
+	typedef Rect_<int> Rect4i;
+	typedef Rect_<float> Rect4f;
+	typedef Rect_<double> Rect4d;
 
 	template<typename _Tp>
 	class Matrix_
@@ -136,13 +203,13 @@ namespace wcv {
 		_Tp& at(int i0, int i1, int i2) const;
 
 		/**@brief return i'th row address*/
-		_Tp* ptr(int i0);
+		_Tp* ptr(int i0) const;
 
 		std::string toString(bool singleLine = true) const;
 
-		friend std::ostream& operator <<(std::ostream& os, const Matrix_& rhs);
-
 		Matrix_ subMat(const Range4i& rowRange, const Range4i& colRange);
+
+		Matrix_ subMat(const Rect4i& roi);
 
 		_Scalar<_Tp> dot(const Matrix_& m);
 
@@ -155,8 +222,50 @@ namespace wcv {
 
 		void from_cvmat(const cv::Mat& src);
 #endif
+		friend std::ostream& operator <<(std::ostream& os, const Matrix_& rhs) {
+			os.setf(ios::fixed);
+			os.precision(8);
+			os << "[";
+			for (size_t i = 0; i < rhs.rows; i++) {
+				for (size_t j = 0; j < rhs.cols; j++) {
+					for (size_t k = 0; k < rhs.channels; k++) {
+						if (j < rhs.cols - 1)
+							os << MAT_ELEM_M(rhs, i, j, k) << ",";
+						else
+							os << MAT_ELEM_M(rhs, i, j, k) << ";";
+					}
+				}
+				if (i < rhs.rows - 1)
+					os << endl;
+				else
+					os << "]";
+			}
+			return os;
+		};
 		Matrix_& operator =(const Matrix_& rhs);
+		bool operator ==(const Matrix_& rhs);
+		bool operator !=(const Matrix_& rhs);
+		Matrix_ operator +(const Matrix_& rhs);
+		Matrix_ operator +(const Scalar4d& scalar);
+		Matrix_ operator -(const Matrix_& rhs);
+		Matrix_ operator -(const Scalar4d& scalar);
+		Matrix_ operator /(const Scalar4d& scalar);
+		Matrix_ operator *(const Scalar4d& scalar);
+		Matrix_ operator *(const Matrix_& rhs);
 
+		Matrix_ t();
+		Matrix_ row(int row);
+		Matrix_ col(int col);
+		Matrix_ rowRange(const Range4i& rowRange);
+		Matrix_ colRange(const Range4i& colRange);
+		void copyTo(Matrix_& m, Rect4i roi);
+		Matrix_ concatenate(const Matrix_& m , int axes = 0);
+		static Matrix_ zeros(int rows, int cols, int channels = 1);
+		static Matrix_ ones(int rows, int cols, int channels = 1);
+		static Matrix_ eyes(int rows, int cols);
+		static Matrix_ shuffle(const Matrix_& m);
+		static Matrix_ rand(int rows, int cols, int channels);
+		static Matrix_ randn(int rows, int cols, int channels, float esp = 1.f);
 	public:
 		_Tp* data;
 		int cols;

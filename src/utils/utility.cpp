@@ -130,4 +130,5 @@ namespace wcv {
 			free(((void**)_mm)[-1]);
 		}
 	}
+
 };
