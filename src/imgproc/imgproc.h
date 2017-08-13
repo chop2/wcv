@@ -64,5 +64,18 @@ namespace wcv {
 	*/
 	void rotate(const Image& src, Image& dst, float angle,Scalar4i fillColor=Scalar4i::all(0));
 
+	/**@brief gaussian blur
+	@param src - input image
+	@param dst - output image
+	@param kSize - blur size
+	@param sigma - gaussian parameter
+	*/
+	void gaussianBlur(const Image& src, Image& dst, Size4i kSize, double sigma = 1.);
 
+	/**@brief median blur
+	@param src - input image
+	@param dst - output image
+	@param kSize - apply windows size
+	*/
+	void medianBlur(const Image& src, Image& dst, Size4i kSize);
 };

@@ -28,7 +28,27 @@ namespace wcv {
 
 	template<typename _Tp>
 	Matrix_<_Tp>::Matrix_(int h, int w, int c, void* data) :
-		rows(h), cols(w), channels(c), data((_Tp*)data) {};;
+		rows(h), cols(w), channels(c){
+		int i = 0;
+		this->data = (_Tp*)fastAlloc(w*h*c * sizeof(_Tp));
+		// if type of _Tp is float,double,memset not work correctly
+		//memset(this->data, val, w*h*c * sizeof(_Tp));
+		if (totalSizes() > 8) {
+			for (; i < totalSizes() - 8; i += 8) {
+				*(this->data + i + 0) = *((_Tp*)data + i + 0);
+				*(this->data + i + 1) = *((_Tp*)data + i + 1);
+				*(this->data + i + 2) = *((_Tp*)data + i + 2);
+				*(this->data + i + 3) = *((_Tp*)data + i + 3);
+				*(this->data + i + 4) = *((_Tp*)data + i + 4);
+				*(this->data + i + 5) = *((_Tp*)data + i + 5);
+				*(this->data + i + 6) = *((_Tp*)data + i + 6);
+				*(this->data + i + 7) = *((_Tp*)data + i + 7);
+			}
+		}
+		for (; i < totalSizes(); i++) {
+			*(this->data + i) = *((_Tp*)data + i);
+		}
+	};
 
 	template<typename _Tp>
 	Matrix_<_Tp>::Matrix_(int h, int w, int c) {
@@ -567,7 +587,7 @@ namespace wcv {
 	}
 
 	template<typename _Tp>
-	inline void Matrix_<_Tp>::copyTo(Matrix_ & m, Rect4i roi)	{
+	inline void Matrix_<_Tp>::copyTo(Matrix_ & m, Rect4i roi) const	{
 		assert(roi.y >= 0 && (roi.y + roi.height) <= m.rows);
 		assert(roi.x >= 0 && (roi.x + roi.width) <= m.cols);
 		assert(roi.height == rows && roi.width == cols);
@@ -581,8 +601,17 @@ namespace wcv {
 	}
 
 	template<typename _Tp>
+	inline Matrix_<_Tp> Matrix_<_Tp>::clone() const {
+		Matrix_<_Tp> dst;
+		dst.create(rows, cols, channels, 0);
+		Rect4i roi(0, 0, cols, rows);
+		this->copyTo(dst, roi);
+		return dst;
+	}
+
+	template<typename _Tp>
 	template<typename _Tp2>
-	inline void Matrix_<_Tp>::convertTo(Matrix_<_Tp2>& dst) {
+	inline void Matrix_<_Tp>::convertTo(Matrix_<_Tp2>& dst) const{
 		if (!dst.empty()) dst.release();
 		int i = 0;
 		dst.create(rows, cols, channels, 0);

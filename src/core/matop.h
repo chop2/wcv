@@ -1,5 +1,5 @@
 #pragma once
-#include "core_base.hpp"
+#include "matrix.h"
 
 namespace wcv {
 
@@ -28,6 +28,9 @@ namespace wcv {
 	template<typename _Tp>
 	/**@brief operate subtract*/
 	void sub(const Matrix_<_Tp>& s1, const Scalar4d scalar, Matrix_<_Tp>& dst);
+	
+	template<typename _Tp>
+	Scalar4d sum(const Matrix_<_Tp>& s);
 
 	template<typename _Tp>
 	/**@brief make image extend by input kernel
@@ -55,7 +58,7 @@ namespace wcv {
 	void copymakeBoarder(const Matrix_<_Tp>& src, Size4i kSize, eBoarderType type, Matrix_<_Tp>& dst);
 
 	template<typename _Tp>
-	void templateOp(const Matrix_<_Tp>& src, const Mat32f& kernel, Matrix_<_Tp>& dst, eBoarderType type);
+	void templateOp(const Matrix_<_Tp>& src, const Matrix_<_Tp>& kernel, Matrix_<_Tp>& dst, eBoarderType type);
 
 	template<typename _Tp>
 	void split(const Matrix_<_Tp>& src, std::vector<Matrix_<_Tp> >& mvs);
@@ -63,6 +66,12 @@ namespace wcv {
 	template<typename _Tp>
 	void merge(const std::vector<Matrix_<_Tp> >& mvs, Matrix_<_Tp>& dst);
 
-	template<typename _Tp>
-	Matrix_<float> getGaussianKernel2D(const Size4i& kSize, float sita);
+	template<typename _Tp = double>
+	Matrix_<double> getGaussianKernel1D(int size, double sigma);
+
+	template<typename _Tp = double>
+	Matrix_<double> getGaussianKernel2D(const Size4i& kSize, float sita);
+
+	template<typename _Tp = double>
+	Matrix_<double> getDefaultGaussianKernel2D_3x3();
 };

@@ -1,4 +1,5 @@
 #include "imgproc.h"
+#include "../utils/utility.h"
 #include <iostream>
 
 #define CHECK_IN_ROI(x,y,size)			\
@@ -237,6 +238,117 @@ namespace wcv {
 					}
 				}
 			}
+		}
+	}
+
+	void gaussianBlur(const Image & src_, Image & dst, Size4i kSize, double sigma) {
+		assert(src_.checkValid());
+		Image src = src_.clone();
+		if (!dst.empty()) dst.release();
+		dst.create(src.rows, src.cols, src.channels);
+		auto process_single_channel = [&](const Image& s, 
+			Size4i ks, double sgm)->Image {
+			Mat64f img64f,dst64f;
+			Image dst;
+			s.convertTo(img64f);
+			Mat64f kernel = getGaussianKernel2D(ks, sgm);
+			templateOp(img64f, kernel, dst64f, SAME);
+			dst64f.convertTo(dst);
+			return dst;
+		};
+
+		if (src.channels == 1) {
+			dst = process_single_channel(src, kSize, sigma);
+		} else {
+			vector<Image> mvs,mvs1;
+			split(src, mvs);
+#			ifdef USE_OMP
+#			pragma omp parallel for
+#			endif
+			for (size_t i = 0; i < mvs.size(); i++)	{
+				Image d = process_single_channel(mvs[i], kSize, sigma);
+				mvs1.push_back(d);
+			}
+			merge(mvs1, dst);
+		}
+	}
+
+	void medianBlur(const Image & src_, Image & dst, Size4i kSize) {
+		assert(src_.checkValid() && 
+			kSize.width % 2 != 0 &&
+			kSize.height % 2 != 0);
+
+		Image src_bd;
+		int rows = src_.rows;
+		int cols = src_.cols;
+		int channels = src_.channels;
+		int radius_h = kSize.height / 2;
+		int radius_w = kSize.width / 2;
+		copymakeBoarder(src_, kSize, SAME, src_bd);
+		if (!dst.empty()) dst.release();
+		dst.create(rows, cols, channels, 0);
+		int hist[256] = { 0 };
+
+		auto localhist = [&](Image& s, int i0, int j0, int c) {
+			for (int i = -radius_h; i <= radius_h ; i++)	{
+				for (int j = -radius_w; j <= radius_w; j++) {
+					uchar& pix = s.at(i0 + i, j0 + j, c);
+					hist[pix]++;
+				}
+			}
+		};
+
+		auto getMedianVal = [&](int hst[],int& med,int& mNum ) {
+			float sum = 0;
+			for (size_t i = 0; i < 256; i++) {
+				mNum += hist[i];
+				sum += hist[i] * 1. / kSize.area();
+				if (sum > 0.5) {
+					med = i;
+					break;
+				}
+			}
+		};
+
+		int th = kSize.area() >> 1 + 1;
+
+		for (size_t c = 0; c < channels; c++) {
+
+			for (int i = radius_h; i < src_bd.rows - radius_h; i++) {
+				int med = 0, mNum = 0;
+				memset(hist, 0, 256 * sizeof(int));
+				localhist(src_bd, i, radius_w, c);
+				getMedianVal(hist, med, mNum);
+				dst.at(i - radius_h, 0, c) = (uchar)(med);
+				for (int j = radius_w + 1; j < src_bd.cols - radius_w; j++) {
+					for (int k = -radius_h; k <= radius_h; k++) {
+						uchar& pixL = src_bd.at(i + k, j - radius_w - 1, c);
+						uchar& pixR = src_bd.at(i + k, j + radius_w, c);
+						hist[pixL]--,hist[pixR]++;
+						if (pixL <= med)
+							mNum--;
+						if (pixR <= med)
+							mNum++;
+					}
+
+					while (mNum > th) {
+						if (med == 0)
+							break;
+						mNum -= hist[med];
+						med--;
+					}
+
+					while (mNum < th) {
+						if (med == 255)
+							break;
+						med++;
+						mNum += hist[med];
+					}
+
+					dst.at(i - radius_h, j - radius_w, c) = (uchar)med;
+				}
+			}
+
 		}
 	}
 };

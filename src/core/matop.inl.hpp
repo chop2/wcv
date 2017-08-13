@@ -1,5 +1,6 @@
 #pragma once
 #include "matop.h"
+#include "../utils/utility.h"
 
 namespace wcv {
 
@@ -139,6 +140,55 @@ namespace wcv {
 	}
 
 	template<typename _Tp>
+	Scalar4d sum(const Matrix_<_Tp>& s)	{
+		assert(s.checkValid());
+		_Scalar<_Tp> scRes = _Scalar<_Tp>::all(_Tp(0));
+
+		auto process_single = [](const Matrix_<_Tp>& s0)->_Tp {
+			int i = 0;
+			_Tp res = 0;
+			if (s0.totalSizes() > 8) {
+#			ifdef USE_OMP
+#			pragma omp parallel for reduction(+:res)
+#			endif
+				for (; i < s0.totalSizes() - 8; i += 8) {
+					res += *(s0.data + i + 0);
+					res += *(s0.data + i + 1);
+					res += *(s0.data + i + 2);
+					res += *(s0.data + i + 3);
+					res += *(s0.data + i + 4);
+					res += *(s0.data + i + 5);
+					res += *(s0.data + i + 6);
+					res += *(s0.data + i + 7);
+				}
+
+#			ifdef USE_OMP
+#			pragma omp parallel for reduction(+:res)
+#			endif
+			}
+			for (; i < s0.totalSizes(); i++) {
+				res += *(s0.data + i);
+			}
+			return res;
+		};
+
+		if (s.channels == 1) {
+			scRes[0] = process_single(s);
+		}
+		else {
+			std::vector<Matrix_<_Tp> > mvs0;
+			split(s, mvs0);
+#			ifdef USE_OMP
+#			pragma omp parallel for
+#			endif
+			for (int i = 0; i < mvs0.size(); i++) {
+				scRes[i] = process_single(mvs0[i]);
+			}
+		}
+		return scRes;
+	}
+
+	template<typename _Tp>
 	/**@brief make image extend by input kernel
 	e.g. image by 7x7 boarder in memory:
 	|***************************************************|
@@ -163,22 +213,22 @@ namespace wcv {
 	*/
 	void copymakeBoarder(const Matrix_<_Tp>& src,Size4i kSize, eBoarderType type, Matrix_<_Tp>& dst) {
 		assert(src.checkValid());
-		assert(kSize.cols % 2 != 0 && kSize.rows % 2 != 0);
-		int newheight = src.rows + kSize.rows - 1;
-		int newwidth = src.cols + kSize.cols - 1;
+		assert(kSize.width % 2 != 0 && kSize.height % 2 != 0);
+		int newheight = src.rows + kSize.height - 1;
+		int newwidth = src.cols + kSize.width - 1;
 		if (dst.empty()) {
 			dst.create(newheight, newwidth, src.channels,0);
 		}
 
 		//! copy raw data
 		_Tp* ptrSrc = NULL, *ptrDst = NULL;
-		for (size_t i = kSize.rows/2; i <= dst.rows - kSize.rows/2; i++) {
-			ptrSrc = src.data + (i - kSize.rows / 2)*src.step();
+		for (size_t i = kSize.height /2; i <= dst.rows - kSize.height /2; i++) {
+			ptrSrc = src.data + (i - kSize.height / 2)*src.step();
 			ptrDst = dst.data + i*dst.step();
 			int step = dst.step();
 			size_t offsLeft = 0;
-			size_t offsRight = (kSize.cols / 2 * src.channels + src.step());
-			size_t cpySize = kSize.cols / 2 * src.channels;
+			size_t offsRight = (kSize.width / 2 * src.channels + src.step());
+			size_t cpySize = kSize.width / 2 * src.channels;
 			if (type == SAME) {	
 				//left side
 				memcpy(ptrDst, ptrSrc, cpySize);
@@ -211,22 +261,22 @@ namespace wcv {
 			}
 		}
 
-		size_t cpySize = kSize.rows / 2 * dst.step() * sizeof(_Tp);
+		size_t cpySize = kSize.height / 2 * dst.step() * sizeof(_Tp);
 		//! copy top-bottom boarder
 		if (type == SAME) {
 			_Tp* ptrDT = dst.data;
 			_Tp* ptrST = dst.data + cpySize;
 			_Tp* ptrDB = dst.data + dst.rows * dst.step() - cpySize;
-			_Tp* ptrSB = dst.data + (dst.rows - kSize.rows) * dst.step();
+			_Tp* ptrSB = dst.data + (dst.rows - kSize.height) * dst.step();
 			memcpy(ptrDT, ptrST, cpySize);
 			memcpy(ptrDB, ptrSB, cpySize);
 		} else if (type == MIRROR) {
-			for (size_t i = 0; i < kSize.rows / 2; i++) {
+			for (size_t i = 0; i < kSize.height / 2; i++) {
 				cpySize = dst.step() * sizeof(_Tp);
 				_Tp* ptrDT = dst.data + i * dst.step();
-				_Tp* ptrST = dst.data + ((kSize.rows -1) - i - 1) * dst.step();
+				_Tp* ptrST = dst.data + ((kSize.height -1) - i - 1) * dst.step();
 				_Tp* ptrDB = dst.data + (dst.rows - 1 - i) * dst.step();
-				_Tp* ptrSB = dst.data + (dst.rows - (kSize.rows - 1) + i) * dst.step();
+				_Tp* ptrSB = dst.data + (dst.rows - (kSize.height - 1) + i) * dst.step();
 				memcpy(ptrDT, ptrST, cpySize);
 				memcpy(ptrDB, ptrSB, cpySize);
 			}
@@ -234,7 +284,7 @@ namespace wcv {
 	}
 
 	template<typename _Tp>
-	void templateOp(const Matrix_<_Tp>& src,const Mat32f& kernel,Matrix_<_Tp>& dst,eBoarderType type) {
+	void templateOp(const Matrix_<_Tp>& src,const Matrix_<_Tp>& kernel,Matrix_<_Tp>& dst,eBoarderType type) {
 		assert(src.channels == 1 && kernel.channels == 1);
 		Matrix_<_Tp> src_bd;
 		copymakeBoarder(src, kernel.size(), type, src_bd);
@@ -244,16 +294,16 @@ namespace wcv {
 		for (size_t i = kernel.cols / 2; i < src_bd.rows - kernel.cols / 2; i++) {
 			for (size_t j = kernel.cols / 2; j < src_bd.cols - kernel.cols / 2; j++) {
 				double sum = 0;
-				double sumk = 0;
-				for (int m = -kernel.rows/2; m < kernel.rows / 2; m++) {
-					for (int n = -kernel.cols / 2; n < kernel.cols / 2; n++) {
+				//double sumk = 0;
+				for (int m = -kernel.rows/2; m <= kernel.rows / 2; m++) {
+					for (int n = -kernel.cols / 2; n <= kernel.cols / 2; n++) {
 						double v0 = (double)MAT_ELEM_S(src_bd, (i + m), (j + n));
 						double v1 = (double)MAT_ELEM_S(kernel, (m + kernel.rows / 2), (n + kernel.cols / 2));
 						sum += v0 * v1;							
-						sumk += v1;
+						//sumk += v1;
 					}
 				}
-				sum /= (sumk+0.5);
+				//sum /= (sumk+0.5);
 				int i0 = i - kernel.rows / 2;
 				int j0 = j - kernel.cols / 2;
 				MAT_ELEM_S(dst,i0,j0) = static_cast<_Tp>(sum);
@@ -302,20 +352,53 @@ namespace wcv {
 	}
 
 	template<typename _Tp>
-	Matrix_<float> getGaussianKernel2D(const Size4i& kSize, float sita) {
+	Matrix_<double> getGaussianKernel1D( int size, double sigma) {
+		double sum = 0;
+		double* data = new double[size];
+		auto gaussian = [](double x, double sigma)->double {
+			const double eps = 1e-6;
+			return exp(-(x*x) / (2 * sigma*sigma + eps));
+		};
+
+		for (int i = 0; i < size; i++) {
+			double idx = (size >> 1) - i;
+			if (size & 1) {
+				double v = gaussian(idx, sigma);
+				*(data + i) = v;
+			} else {
+				idx -= 0.5;
+				double v = gaussian(idx, sigma);
+				*(data + i) = v;
+			}
+			sum += *(data + i);
+		}
+
+		for (int i = 0; i < size; i++) {
+			*(data + i) /= sum;
+		}
+
+		Matrix_<double> kernel(1, size, 1, data);
+		delete[] data;
+		return kernel;
+	}
+
+	template<typename _Tp>
+	Matrix_<double> getGaussianKernel2D(const Size4i& kSize, float sigma) {
 		assert(kSize.height % 2 != 0 &&
 			kSize.width % 2 != 0);
-		Matrix_<float> kernel(kSize.height, kSize.width, 1);
-		int i0 = kSize.height / 2;
-		int j0 = kSize.width / 2;
-		float A = 1. / (sigma * sqrt(2 * PI));
-		for (size_t i = 0; i < kSize.height; i++) {
-			for (size_t j = 0; j < kSize.width; j++) {
-				kernel.at(i, j) = A * exp(-((i - i0)*(i - i0) / (2 * sigma*sigma) +
-					(j - j0)*(j - j0) / (2 * sigma*sigma)));
-			}
-		}
+		Matrix_<double> kx = getGaussianKernel1D(kSize.width, sigma);
+		Matrix_<double> ky = getGaussianKernel1D(kSize.height, sigma);
+		Matrix_<double> kernel = ky.t() * kx;
 		return kernel;
+	}
+
+	template<typename _Tp>
+	Matrix_<double> getDefaultGaussianKernel2D_3x3() {
+		double kdata[] = {
+			1,2,1,
+			2,4,2,
+			1,2,1 };
+		return Matrix_<double>(3, 3, 1, &kdata);;
 	}
 
 	template<typename _Tp1, typename _Tp2>

@@ -305,11 +305,13 @@ namespace wcv {
 		Matrix_ colRange(const Range4i& colRange);
 
 		/**@brief copy self to other matrix */
-		void copyTo(Matrix_& m, Rect4i roi);
+		void copyTo(Matrix_& m, Rect4i roi) const;
 
 		template<typename _Tp2>
 		/**@brief convert to other type*/
-		void convertTo(Matrix_<_Tp2>& dst);
+		void convertTo(Matrix_<_Tp2>& dst) const;
+
+		Matrix_ clone() const;
 
 		/**@brief matrix concatenate.
 		function will concat self and m on axes

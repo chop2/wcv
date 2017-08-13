@@ -142,8 +142,25 @@ void test_matrix() {
 	cout << "test \"convertTo()\": " << endl << k32s.toString(false) << endl;
 }
 
+void test_matop() {
+	Mat64f kernel = getDefaultGaussianKernel2D_3x3();
+	//cout << kernel << endl;
+
+	kernel = getGaussianKernel1D(7, 1);
+	//cout << kernel << endl;
+
+	kernel = getGaussianKernel2D(Size4i(7, 5), 1.);
+	cout << kernel << endl;
+
+	Scalar4d s = sum(kernel);
+	cout << s << endl;
+}
+
 void test_imgproc() {
 	Mat src = imread("2.jpg", 1);
+	cv::Mat dtt;
+	cv::medianBlur(src, dtt, 3);
+
 	Image img;
 	img.from_cvmat(src);
 
@@ -151,27 +168,27 @@ void test_imgproc() {
 	//wcv::threshold(img, ds, 50);
 	//wcv::cvtColorGray(img, ds);
 	//wcv::equalize(img, ds);
-	//wcv::translationTrans(img, ds, -10, -10,Scalar4i::all(255));
-	//wcv::mirrorTrans(img, ds, false);
+	//wcv::translation(img, ds, -10, -10,Scalar4i::all(255));
+	//wcv::mirror(img, ds, false);
 	//wcv::tranpose(img, ds);
 	//wcv::resize(img, ds, Size4i(src.cols * 4, src.rows * 4));
 	//wcv::rotate(img, ds, 30);
 	//wcv::copymakeBoarder(img, Size4i(7, 7), wcv::MIRROR, ds);
-
+	//wcv::gaussianblur(img, ds, Size4i(5, 5));
+	wcv::medianBlur(img, ds, Size4i(3, 3));
 
 	//vector<Mat8u> mvs;
 	//wcv::split(img, mvs);
-
 	//Mat8u img;
 	//wcv::merge(mvs, imgm);
 
-	ds = img.subMat(Range4i(0, 100), Range4i(0, 100));
 	Mat dst = ds.to_cvmat();
 	imwrite("te.jpg", dst);
 }
 
 void main()
 {
+	test_matop();
 	test_matrix();
 	test_imgproc();
 }
