@@ -157,14 +157,10 @@ void test_matop() {
 }
 
 void test_imgproc() {
-	Mat src = imread("2.jpg", 1);
-	cv::Mat dtt;
-	cv::medianBlur(src, dtt, 3);
+	Mat src = imread("2.jpg", 0);
 
-	Image img;
+	Image img,ds;
 	img.from_cvmat(src);
-
-	Image ds;
 	//wcv::threshold(img, ds, 50);
 	//wcv::cvtColorGray(img, ds);
 	//wcv::equalize(img, ds);
@@ -175,7 +171,9 @@ void test_imgproc() {
 	//wcv::rotate(img, ds, 30);
 	//wcv::copymakeBoarder(img, Size4i(7, 7), wcv::MIRROR, ds);
 	//wcv::gaussianblur(img, ds, Size4i(5, 5));
-	wcv::medianBlur(img, ds, Size4i(3, 3));
+	//wcv::medianBlur(img, ds, Size4i(3, 3));
+	//wcv::boxBlur(img, ds, Size4i(5, 5));
+	//wcv::graySharp(img, ds, 128);
 
 	//vector<Mat8u> mvs;
 	//wcv::split(img, mvs);

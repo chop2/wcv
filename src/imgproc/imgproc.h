@@ -78,4 +78,15 @@ namespace wcv {
 	@param kSize - apply windows size
 	*/
 	void medianBlur(const Image& src, Image& dst, Size4i kSize);
+
+	/**@brief box blur*/
+	void boxBlur(const Image& src, Image& dst, Size4i kSize);
+
+	/**@brief image sharp
+	@param src - input gray image
+	@param dst - output image
+	@param thresh - input threshold,if gradien(f(x,y)) >= thresh,
+			then f(x,y) = gradient(f(x,y)),otherwise f(x,y) will not changed.
+	*/
+	void graySharp(const Image& src, Image& dst,int thresh);
 };

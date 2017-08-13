@@ -180,7 +180,7 @@ namespace wcv {
 		~Matrix_();
 
 		/**@brief create a matrix*/
-		void create(int h, int w, int c, int val = 205);
+		void create(int h, int w, int c, _Tp val = 205);
 
 		/**@brief release matrix*/
 		void release();

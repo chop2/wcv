@@ -69,7 +69,7 @@ namespace wcv {
 	};
 
 	template<typename _Tp>
-	void Matrix_<_Tp>::create(int h, int w, int c, int val) {
+	void Matrix_<_Tp>::create(int h, int w, int c, _Tp val) {
 		int i = 0;
 		rows = h;
 		cols = w;

@@ -351,4 +351,61 @@ namespace wcv {
 
 		}
 	}
+
+	void boxBlur(const Image & src_, Image & dst, Size4i kSize) {
+		assert(src_.checkValid());
+		Mat64f kernel;
+		Image src = src_.clone();
+		if (!dst.empty()) dst.release();
+		dst.create(src.rows, src.cols, src.channels, 0);
+		double val = 1. / kSize.area();
+		kernel.create(kSize.height, kSize.width, 1, val);
+
+		auto process_single_channel = [](Image& s,Mat64f& ker)->Image {
+			Mat64f img64f, dst64f;
+			Image dst;
+			s.convertTo(img64f);
+			templateOp(img64f, ker, dst64f, SAME);
+			dst64f.convertTo(dst);
+			return dst;
+		};
+
+		if (src.channels == 1) {
+			dst = process_single_channel(src, kernel);
+		} else {
+			vector<Image> mvs,mvs1;
+			split(src, mvs);
+#			ifdef USE_OMP
+#			pragma omp parallel for
+#			endif
+			for (size_t i = 0; i < mvs.size(); i++)	{
+				Image d = process_single_channel(mvs[i], kernel);
+				mvs1.push_back(d);
+			}
+
+			merge(mvs1, dst);
+		}
+	}
+
+	void graySharp(const Image & src_, Image & dst, int thresh) {
+		assert(src_.checkValid() && src_.channels == 1);
+		Image src = src_.clone();
+		if (!dst.empty()) dst.release();
+		for (size_t i = 1; i < src.rows; i++) {
+			for (size_t j = 1; j < src.cols; j++) {
+				uchar& p0 = src.at(i - 1, j - 1);
+				uchar& p1 = src.at(i, j - 1);
+				uchar& p2 = src.at(i, j);
+				int temp = abs(p0 - p1) + abs(p0 - p2);
+				if (temp < 255) {
+					if (temp >= (uchar)thresh) {
+						p0 = temp;
+					}
+				} else {
+					p0 = 255;
+				}
+			}
+		}
+		dst = src;
+	}
 };
