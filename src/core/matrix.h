@@ -170,6 +170,28 @@ namespace wcv {
 	typedef Rect_<double> Rect4d;
 
 	template<typename _Tp>
+	class Point_ {
+	public:
+		Point_() {};
+		Point_(_Tp x, _Tp y) :x(x), y(y) {};
+		friend std::ostream& operator <<(std::ostream& os, const Point_& rhs) {
+			os.setf(ios::fixed);
+			os.precision(8);
+			os << "(";
+			os << rhs.x << "," << rhs.y << end;
+			os << ")";
+			return os;
+		}
+	public:
+		_Tp x;
+		_Tp y;
+	};
+
+	typedef Point_<int> Point4i;
+	typedef Point_<float> Point4f;
+	typedef Point_<double> Point4d;
+
+	template<typename _Tp>
 	class Matrix_
 	{
 	public:
@@ -246,10 +268,17 @@ namespace wcv {
 			for (size_t i = 0; i < rhs.rows; i++) {
 				for (size_t j = 0; j < rhs.cols; j++) {
 					for (size_t k = 0; k < rhs.channels; k++) {
-						if (j < rhs.cols - 1)
-							os << MAT_ELEM_M(rhs, i, j, k) << ",";
-						else
-							os << MAT_ELEM_M(rhs, i, j, k) << ";";
+						if (j < rhs.cols - 1) {
+							if (typeid(_Tp) == typeid(uchar))
+								os << (int)MAT_ELEM_M(rhs, i, j, k) << ",";
+							else
+								os << MAT_ELEM_M(rhs, i, j, k) << ",";
+						} else {
+							if (typeid(_Tp) == typeid(uchar))
+								os << (int)MAT_ELEM_M(rhs, i, j, k) << ";";
+							else
+								os << MAT_ELEM_M(rhs, i, j, k) << ";";
+						}
 					}
 				}
 				if (i < rhs.rows - 1)

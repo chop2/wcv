@@ -157,11 +157,12 @@ void test_matop() {
 }
 
 void test_imgproc() {
-	Mat src = imread("2.jpg", 0);
+	Mat src = imread("3.jpg", 0);
 
 	Image img,ds;
 	img.from_cvmat(src);
-	//wcv::threshold(img, ds, 50);
+	wcv::threshold(img, img, 50);
+	cv::Mat dd = img.to_cvmat();
 	//wcv::cvtColorGray(img, ds);
 	//wcv::equalize(img, ds);
 	//wcv::translation(img, ds, -10, -10,Scalar4i::all(255));
@@ -179,6 +180,9 @@ void test_imgproc() {
 	//wcv::split(img, mvs);
 	//Mat8u img;
 	//wcv::merge(mvs, imgm);
+	Image elem = getStructElement(Size4i(3, 3), MORP_SHAPE_CROSS);
+	cout << elem << endl;
+	wcv::errode(img, ds, elem);
 
 	Mat dst = ds.to_cvmat();
 	imwrite("te.jpg", dst);

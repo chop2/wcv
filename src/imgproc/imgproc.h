@@ -1,6 +1,7 @@
 #pragma once
 #include "../core/core.h"
 namespace wcv {
+
 	/**@brief applay threshold
 	$f(x) = 0,if f(x) < t else f(x) = max_val$
 	@param src - input Image
@@ -89,4 +90,23 @@ namespace wcv {
 			then f(x,y) = gradient(f(x,y)),otherwise f(x,y) will not changed.
 	*/
 	void graySharp(const Image& src, Image& dst,int thresh);
+
+	/***************************Morphological operator********************************************/
+
+	enum eMorphShape {
+		MORP_SHAPE_RECT = 0,
+		MORP_SHAPE_ELLIPSE,
+		MORP_SHAPE_CROSS
+	};
+	Image getStructElement(const Size4i& size,eMorphShape shape );
+
+	/**@brief errode op
+	@param src -  input image,binary image
+	@param dst - output image
+	@param elem - [in] structure element
+	@param anchor - anchor of element
+	@param iterator - iterator of errode operation
+	*/
+	void errode(const Image& src, Image& dst, const Image& elem, Point4i anchor = Point4i(-1, -1),int iterator = 1);
+
 };

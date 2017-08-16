@@ -15,8 +15,9 @@
 
 
 namespace wcv {
-	void threshold(const Image & src, Image & dst, int t,int max_val) {
-		assert(src.checkValid() && src.channels == 1);
+	void threshold(const Image & src_, Image & dst, int t,int max_val) {
+		assert(src_.checkValid() && src_.channels == 1);
+		Image src = src_.clone();
 		if (dst.empty()) {
 			dst.create(src.rows, src.cols, src.channels);
 		}
@@ -407,5 +408,69 @@ namespace wcv {
 			}
 		}
 		dst = src;
+	}
+
+	Image getStructElement(const Size4i & size, eMorphShape shape) {
+		Image elem;
+		switch (shape)
+		{
+		case wcv::MORP_SHAPE_RECT:
+			elem.create(size.height, size.width, 1, 1);
+			break;
+		case wcv::MORP_SHAPE_ELLIPSE:
+			elem.create(size.height, size.width, 1, 1);
+			break;
+		case wcv::MORP_SHAPE_CROSS:
+			elem.create(size.height, size.width, 1, 0);
+			int kx = size.width / 2;
+			int ky = size.height / 2;
+			for (size_t i = 0; i < elem.cols; i++) {
+				elem.at(ky, i) = 1;
+			}
+			for (size_t i = 0; i < elem.rows; i++) {
+				elem.at(i, kx) = 1;
+			}
+			break;
+		}
+
+		return elem;
+	}
+
+	void errode(const Image & src_, Image & dst, const Image & elem, Point4i anchor, int iterator) {
+		assert(src_.checkValid() && src_.channels == 1);
+		assert(elem.checkValid() && elem.channels == 1);
+		Image src = src_.clone();
+		if (!dst.empty()) dst.release();
+		dst.create(src.rows, src.cols, src.channels,0);
+		int kw = elem.cols;
+		int kh = elem.rows;
+		assert(anchor.x < kw && anchor.y < kh);
+		if (anchor.x == -1 || anchor.y == -1) {
+			anchor.x = kw >> 1;
+			anchor.y = kh >> 1;
+		}
+
+		for (size_t k = 0; k < iterator; k++) {
+			for (size_t i = anchor.y; i < src.rows - (kh - anchor.y); i++) {
+				for (size_t j = anchor.x; j < src.cols - (kw - anchor.x); j++) {
+					uchar& pix = src.at(i, j);
+					uchar& pixD = dst.at(i, j);
+					if (pix == 0) continue;
+					for (int m = -anchor.y; m <= kh - anchor.y; m++) {
+						for (int n = -anchor.x; n <= kh - anchor.x; n++) {
+							uchar& p = elem.at(m + kh / 2, n + kw / 2);
+							uchar& pS = src.at(i + m, j + n);
+							if (p == 0)
+								continue;
+							pixD = 255;
+							if ((pS & p) == 0) {
+								pixD = 0;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 };
