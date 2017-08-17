@@ -98,6 +98,11 @@ namespace wcv {
 		MORP_SHAPE_ELLIPSE,
 		MORP_SHAPE_CROSS
 	};
+
+	/**@brief construct a element for morphologic
+	@param size - size of element
+	@param shape -  shape of element,see eMorphShape
+	*/
 	Image getStructElement(const Size4i& size,eMorphShape shape );
 
 	/**@brief erode op
@@ -105,8 +110,17 @@ namespace wcv {
 	@param dst - output image
 	@param elem - [in] structure element
 	@param anchor - anchor of element
-	@param iterator - iterator of errode operation
+	@param iterator - iterator of erode operation
 	*/
 	void erode(const Image& src, Image& dst, const Image& elem, Point4i anchor = Point4i(-1, -1),int iterator = 1);
+
+	/**@brief dilate op
+	@param src -  input image,binary image
+	@param dst - output image
+	@param elem - [in] structure element
+	@param anchor - anchor of element
+	@param iterator - iterator of dilate operation
+	*/
+	void dilate(const Image& src, Image& dst, const Image& elem, Point4i anchor = Point4i(-1, -1), int iterator = 1);
 
 };

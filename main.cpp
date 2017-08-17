@@ -162,6 +162,7 @@ void test_imgproc() {
 	Image img,ds;
 	img.from_cvmat(src);
 	wcv::threshold(img, img, 50);
+	wcv::not(img, img);
 	cv::Mat dd = img.to_cvmat();
 	//wcv::cvtColorGray(img, ds);
 	//wcv::equalize(img, ds);
@@ -182,7 +183,8 @@ void test_imgproc() {
 	//wcv::merge(mvs, imgm);
 	Image elem = getStructElement(Size4i(3, 3), MORP_SHAPE_CROSS);
 	cout << elem << endl;
-	wcv::errode(img, ds, elem);
+	wcv::erode(img, ds, elem);
+	//wcv::dilate(img, ds, elem);
 
 	Mat dst = ds.to_cvmat();
 	imwrite("te.jpg", dst);

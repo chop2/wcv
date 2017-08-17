@@ -441,7 +441,8 @@ namespace wcv {
 		assert(elem.checkValid() && elem.channels == 1);
 		Image src = src_.clone();
 		if (!dst.empty()) dst.release();
-		dst.create(src.rows, src.cols, src.channels,0);
+		//dst.create(src.rows, src.cols, src.channels,0);
+		dst = src.clone();
 		int kw = elem.cols;
 		int kh = elem.rows;
 		assert(anchor.x < kw && anchor.y < kh);
@@ -465,6 +466,47 @@ namespace wcv {
 							pixD = 255;
 							if ((pS & p) == 0) {
 								pixD = 0;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	void dilate(const Image & src_, Image & dst, const Image & elem, Point4i anchor, int iterator) {
+		assert(src_.checkValid() && src_.channels == 1);
+		assert(elem.checkValid() && elem.channels == 1);
+		Image src = src_.clone();
+		if (!dst.empty()) dst.release();
+		dst = src.clone();
+		int kw = elem.cols;
+		int kh = elem.rows;
+		assert(anchor.x < kw && anchor.y < kh);
+		if (anchor.x == -1 || anchor.y == -1) {
+			anchor.x = kw >> 1;
+			anchor.y = kh >> 1;
+		}
+
+		for (size_t k = 0; k < iterator; k++) {
+			for (size_t i = anchor.y; i < src.rows - (kh - anchor.y); i++) {
+				for (size_t j = anchor.x; j < src.cols - (kw - anchor.x); j++) {
+					uchar& pix = src.at(i, j);
+					uchar& pixD = dst.at(i, j);
+					if (pix != 0) {
+						pixD = 255;
+						continue;
+					}
+					for (int m = -anchor.y; m <= kh - anchor.y; m++) {
+						for (int n = -anchor.x; n <= kh - anchor.x; n++) {
+							uchar& p = elem.at(m + kh / 2, n + kw / 2);
+							uchar& pS = src.at(i + m, j + n);
+							if (p == 0)
+								continue;
+							pixD = 0;
+							if ((pS & p) != 0) {
+								pixD = 255;
 								break;
 							}
 						}

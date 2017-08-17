@@ -189,6 +189,29 @@ namespace wcv {
 	}
 
 	template<typename _Tp>
+	void not(const Matrix_<_Tp>& s_, Matrix_<_Tp>& dst) {
+		assert(s_.checkValid() && s_.channels == 1);
+		Matrix_<_Tp> s = s_.clone();
+		int i = 0;
+		if (!dst.empty()) dst.release();
+		for (; i < s.totalSizes() - 8; i += 8) {
+			*(s.data + i + 0) = ~(*(s.data + i + 0));
+			*(s.data + i + 1) = ~(*(s.data + i + 1));
+			*(s.data + i + 2) = ~(*(s.data + i + 2));
+			*(s.data + i + 3) = ~(*(s.data + i + 3));
+			*(s.data + i + 4) = ~(*(s.data + i + 4));
+			*(s.data + i + 5) = ~(*(s.data + i + 5));
+			*(s.data + i + 6) = ~(*(s.data + i + 6));
+			*(s.data + i + 7) = ~(*(s.data + i + 7));
+		}
+
+		for (; i < s.totalSizes(); ++i) {
+			*(s.data + i) = ~(*(s.data + i));
+		}
+		dst = s;
+	}
+
+	template<typename _Tp>
 	/**@brief make image extend by input kernel
 	e.g. image by 7x7 boarder in memory:
 	|***************************************************|

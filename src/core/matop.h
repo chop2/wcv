@@ -30,7 +30,12 @@ namespace wcv {
 	void sub(const Matrix_<_Tp>& s1, const Scalar4d scalar, Matrix_<_Tp>& dst);
 	
 	template<typename _Tp>
+	/**@brief sum each channel*/
 	Scalar4d sum(const Matrix_<_Tp>& s);
+
+	template<typename _Tp>
+	/**@brief operate not*/
+	void not(const Matrix_<_Tp>& s, Matrix_<_Tp>& dst);
 
 	template<typename _Tp>
 	/**@brief make image extend by input kernel
