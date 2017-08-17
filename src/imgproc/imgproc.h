@@ -100,13 +100,13 @@ namespace wcv {
 	};
 	Image getStructElement(const Size4i& size,eMorphShape shape );
 
-	/**@brief errode op
+	/**@brief erode op
 	@param src -  input image,binary image
 	@param dst - output image
 	@param elem - [in] structure element
 	@param anchor - anchor of element
 	@param iterator - iterator of errode operation
 	*/
-	void errode(const Image& src, Image& dst, const Image& elem, Point4i anchor = Point4i(-1, -1),int iterator = 1);
+	void erode(const Image& src, Image& dst, const Image& elem, Point4i anchor = Point4i(-1, -1),int iterator = 1);
 
 };

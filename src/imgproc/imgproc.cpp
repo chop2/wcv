@@ -436,7 +436,7 @@ namespace wcv {
 		return elem;
 	}
 
-	void errode(const Image & src_, Image & dst, const Image & elem, Point4i anchor, int iterator) {
+	void erode(const Image & src_, Image & dst, const Image & elem, Point4i anchor, int iterator) {
 		assert(src_.checkValid() && src_.channels == 1);
 		assert(elem.checkValid() && elem.channels == 1);
 		Image src = src_.clone();
